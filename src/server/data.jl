@@ -28,7 +28,7 @@ end
 
 mutable struct Channel
 	id::String
-	clients::Vector{Client}
+	clients::Vector{String} # Clients id
 end
 
 mutable struct Storage

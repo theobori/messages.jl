@@ -2,7 +2,7 @@ module Commands
 
 include("data.jl")
 
-using .Data, MySQL, DotEnv
+using .Data, MySQL, DotEnv, Bcrypt
 
 DotEnv.config()
 
@@ -22,8 +22,9 @@ function register(command::Vector{SubString{String}}, s::Any, conn::IO)
     if (length(command[3]) < 6)
         return (write(conn, "The passwords must have more than 6 characters\n"))
     end
-
-    name = command[2] ; password = command[3]
+    
+    name = command[2]
+    password = String(Bcrypt.GenerateFromPassword(Array{UInt8,1}(command[3]), 0))
     try
         DBInterface.execute(mysql_conn, """INSERT INTO user (name, password)
         VALUES ('$name', '$password')""")
@@ -34,7 +35,12 @@ function register(command::Vector{SubString{String}}, s::Any, conn::IO)
 end
 
 function login(command::Vector{SubString{String}}, s::Any, conn::IO)
-
+    name = command[2]
+    try
+        DBInterface.execute(mysql_conn, """SELECT id FROM user WHERE name='$name'""")
+    catch err
+        return (write(conn, "T\n"))
+    end
 end
 
 function who(command::Vector{SubString{String}}, s::Any, conn::IO)
