@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check this packages
-pkg=(julia)
+pkg=(julia mysql-server)
 pkg_manager=(apt brew)
 
 # Check your default package manager and install packages
@@ -25,7 +25,7 @@ install_all_pkg () {
 # Main function
 main () {
     install_all_pkg
-    julia src/server/packages.jl
+    julia src/packages.jl
 }
 
 main

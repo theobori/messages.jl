@@ -39,12 +39,13 @@ function wait_client(conn::IO, s::Storage)
 end
 
 function serve(port::Int)
-	storage = Storage(listen(port), Dict())
+	storage = Storage(listen(IPv4(0), port), Dict())
 
     print("Server listening on port $port")
   	while true
 		conn = accept(storage.listener)
 		write(conn, Data.welcome_msg)
+		print(getpeername(conn))
 		@async begin
 			try
 				while isopen(conn)
