@@ -1,7 +1,6 @@
 using Pkg
 
 dependencies = [
-    "JSONWebTokens",
     "MySQL",
     "DBInterface",
     "Bcrypt",

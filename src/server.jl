@@ -35,11 +35,14 @@ function wait_client(conn::IO, s::Storage)
 
     if (size(parsed_line)[1] > 0)
         Commands.exec_command(parsed_line, s, conn)
-    end
+	else
+		Commands.fancy_write(s, conn, "")
+	end
 end
 
 function serve(port::Int)
 	storage = Storage(listen(IPv4(0), port), Dict(), Dict())
+	Commands.init_lobby(storage)
 
     print("Server listening on port $port\n")
   	while true

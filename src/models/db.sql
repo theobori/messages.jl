@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) AUTO_INCREMENT=1, CHARACTER SET ascii COLLATE ascii_general_ci;
 
 CREATE TABLE IF NOT EXISTS `channel` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`id` INT NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(100) NOT NULL UNIQUE,
 	`description` TEXT NOT NULL,
 	`created_at` DATETIME ON UPDATE CURRENT_TIMESTAMP DEFAULT NOW() NOT NULL,
@@ -26,4 +26,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
 
   PRIMARY KEY (`id`),
 	FOREIGN KEY (`owner`) REFERENCES `user`(`id`) ON DELETE CASCADE
-) AUTO_INCREMENT=2, CHARACTER SET ascii COLLATE ascii_general_ci;
+) AUTO_INCREMENT=10, CHARACTER SET ascii COLLATE ascii_general_ci;
+
+INSERT INTO `user` VALUES (1, "server", "server", NOW());
+INSERT INTO `channel` VALUES (1, "lobby", "Default channel", NOW(), 0, "no password", 1);
