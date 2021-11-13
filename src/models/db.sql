@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`description` TEXT NOT NULL,
 	`created_at` DATETIME ON UPDATE CURRENT_TIMESTAMP DEFAULT NOW() NOT NULL,
 	`protected` INT UNSIGNED DEFAULT 0,
-  `password` VARCHAR(100),
+  `password` VARCHAR(100) DEFAULT "no password",
   `owner` INT UNSIGNED NOT NULL,
 
   PRIMARY KEY (`id`),

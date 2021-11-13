@@ -37,9 +37,22 @@ end
 function login(command::Vector{SubString{String}}, s::Any, conn::IO)
     name = command[2]
     try
-        DBInterface.execute(mysql_conn, """SELECT id FROM user WHERE name='$name'""")
+        response = DBInterface.execute(mysql_conn, """SELECT id, password 
+        FROM user WHERE name='$name'""")
+
+        if (length(response) == 0)
+            return (write(conn, "Invalid username or password\n"))
+        end
+
+        password = String(command[3])
+        hash = String(first(response)[2])
+
+        if (Bcrypt.CompareHashAndPassword(hash, password) == false)
+            return (write(conn, "Invalid username or password\n"))
+        end
+        write(conn, "Successfully logged in\n")
     catch err
-        return (write(conn, "T\n"))
+        return
     end
 end
 
@@ -57,10 +70,6 @@ end
 
 function leave_channel(command::Vector{SubString{String}}, s::Any, conn::IO)
 
-end
-
-function exit(command::Vector{SubString{String}}, s::Any, conn::IO)
-    
 end
 
 function help(command::Vector{SubString{String}}, s::Any, conn::IO)

@@ -39,20 +39,22 @@ function wait_client(conn::IO, s::Storage)
 end
 
 function serve(port::Int)
-	storage = Storage(listen(IPv4(0), port), Dict())
+	storage = Storage(listen(IPv4(0), port), Dict(), Dict())
 
-    print("Server listening on port $port")
+    print("Server listening on port $port\n")
   	while true
 		conn = accept(storage.listener)
 		write(conn, Data.welcome_msg)
-		print(getpeername(conn))
 		@async begin
+			ip_addr = getpeername(conn)
 			try
 				while isopen(conn)
 					wait_client(conn, storage)
 				end
 			catch err
-				print("connection ended with error $err")
+				# Debug
+				# print("connection ended with error $err")
+				# Disconnect client
 			end
 		end
 	end

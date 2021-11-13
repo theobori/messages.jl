@@ -8,7 +8,6 @@ const help_msg = """
 | /create <channel_name> - Create a channel                   |
 | /join <channel_name> - Join a channel                       |
 | /leave - Leave a channel                                    |
-| /exit - Disconnect                                          |
 | /help - Display this message                                |
 +-------------------------------------------------------------+
 
@@ -23,16 +22,21 @@ mutable struct Client
 	id::String
 	name::String
 	ip_addr::String
-	channel_id::Int
+	current_channel_id::Int
 end
 
 mutable struct Channel
 	id::String
-	clients::Vector{String} # Clients id
+	name::String
+	description::String
+	is_protected::Bool
+	password::String
+	owner_id::String
 end
 
 mutable struct Storage
 	listener::Any
+	active_clients::Dict{String, Client}
 	active_channels::Dict{String, Channel}
 end
 
