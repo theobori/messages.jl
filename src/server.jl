@@ -49,6 +49,7 @@ function serve(port::Int)
   	while true
 		conn = accept(storage.listener)
 		write(conn, Data.welcome_msg)
+
 		@async begin
 			try
 				while isopen(conn)
@@ -56,8 +57,7 @@ function serve(port::Int)
 				end
 			catch err
 				# Debug
-				# print("connection ended with error $err")
-				# Disconnect client
+				Commands.disconnect(storage, conn)
 			end
 		end
 	end
@@ -69,4 +69,4 @@ end # Server
 
 using .Server
 
-serve(6666)
+serve(1945)

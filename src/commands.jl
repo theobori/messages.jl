@@ -32,6 +32,14 @@ function is_logged(storage, ip_addr::String)
     ip_addr in [key for (key, _) in storage.active_clients]
 end
 
+function disconnect(storage, conn::IO)
+    for (key, value) in storage.active_clients
+        if (isopen(value.conn) == false)
+            delete!(storage.active_clients, key)
+        end
+    end
+end
+
 function broadcast_channel(storage, msg::String, conn::IO)
     ip_addr = string(first(getpeername(conn)))
 
@@ -41,9 +49,17 @@ function broadcast_channel(storage, msg::String, conn::IO)
 
     client = storage.active_clients[ip_addr]
     channel_id = client.current_channel_id
-    for (_, value) in storage.active_clients
+
+    for (target_ip, value) in storage.active_clients
         if (value.current_channel_id == channel_id && value.id != client.id)
-            fancy_write(storage, value.conn, msg * "\n")
+
+            user = storage.active_clients[ip_addr]
+            channel_name = storage.active_channels[channel_id].name
+            PS1 = "[$channel_name][$(user.name)] -> "
+
+            if (isopen(value.conn))
+                write(value.conn, PS1 * msg * "\n")
+            end
         end
     end
 end
