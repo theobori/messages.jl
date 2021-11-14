@@ -17,7 +17,7 @@ const mysql_conn = DBInterface.connect(
 
 function init_lobby(storage)
     response = DBInterface.execute(mysql_conn, """SELECT id, name, description,
-     protected, password, owner FROM channel WHERE id=1""")
+    protected, password, owner FROM channel WHERE id=1""")
 
     if (length(response) == 0)
         return
@@ -32,6 +32,26 @@ function is_logged(storage, ip_addr::String)
     ip_addr in [key for (key, _) in storage.active_clients]
 end
 
+function broadcast_channel(storage, msg::String, conn::IO)
+    ip_addr = string(first(getpeername(conn)))
+
+    if (is_logged(storage, ip_addr) == false)
+        return
+    end
+
+    client = storage.active_clients[ip_addr]
+    channel_id = client.current_channel_id
+    for (_, value) in storage.active_clients
+        if (value.current_channel_id == channel_id && value.id != client.id)
+            fancy_write(storage, value.conn, msg * "\n")
+        end
+    end
+end
+
+function channel_exist(storage, id::String)
+    id in [key for (key, _) in storage.active_channels]
+end
+
 function fancy_write(storage, conn::IO, msg::String)
     ip_addr = string(first(getpeername(conn)))
 
@@ -39,8 +59,9 @@ function fancy_write(storage, conn::IO, msg::String)
         return (write(conn, msg))
     end
 
-    username = storage.active_clients[ip_addr].name
-    channel_id = storage.active_clients[ip_addr].current_channel_id
+    client = storage.active_clients[ip_addr]
+    username = client.name
+    channel_id = client.current_channel_id
     channel_name = storage.active_channels[channel_id].name
     PS1 = "[$channel_name][$username] "
 
@@ -90,26 +111,74 @@ function login(command::Vector{SubString{String}}, storage, conn::IO)
     end
     write(conn, "Successfully logged in\n")
 
-    storage.active_clients[ip_addr] = Client(arr[1], arr[3], ip_addr, "1")
+    storage.active_clients[ip_addr] = Client(arr[1], arr[3], ip_addr, "1", conn)
 end
 
 function who(command::Vector{SubString{String}}, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
 
     user = storage.active_clients[ip_addr]
-    fancy_write(storage, conn, "$(user.name) $(user.ip_addr)")
+    fancy_write(storage, conn, "$(user.name) $(user.ip_addr)\n")
 end
 
 function create_channel(command::Vector{SubString{String}}, storage, conn::IO)
+    ip_addr = string(first(getpeername(conn)))
+    name = command[2]
+    password = length(command) - 1 != 2 ? "no password" : 
+    String(Bcrypt.GenerateFromPassword(Array{UInt8,1}(command[3]), 0))
+    protected = password == "no password" ? 0 : 1
+    user_id = storage.active_clients[ip_addr].id
 
+    try
+        DBInterface.execute(mysql_conn, """INSERT INTO channel (name,
+        description, protected, password, owner) VALUES ('$name', 
+        'tmp', $protected, '$password', $user_id)""")
+        write(conn, "Successfully created the channel $name\n")
+    catch err
+        return (write(conn, "A channel with the name $name already exists\n"))
+    end
 end
 
 function join_channel(command::Vector{SubString{String}}, storage, conn::IO)
+    ip_addr = string(first(getpeername(conn)))
+    name = command[2]
 
+    response = DBInterface.execute(mysql_conn, """SELECT id, description, 
+    name, protected, password, owner FROM channel WHERE name='$name'""")
+
+    if (length(response) == 0)
+        return (write(conn, "This channel doesnt exist\n"))
+    end
+
+    arr = first(response)
+    if (arr.protected == 1)
+        if (length(command) - 1 != 2)
+            return (write(conn, "This channel required a password\n"))
+        end
+        if (Bcrypt.CompareHashAndPassword(arr.password, String(command[3])) == false)
+            return (write(conn, "Invalid password\n"))
+        end
+    end
+
+    storage.active_clients[ip_addr].current_channel_id = string(arr.id)
+    if (channel_exist(storage, string(arr.id)) == false)
+        storage.active_channels[string(arr.id)] = Data.Channel(string(arr.id), 
+        arr.name, arr.description, arr.protected, arr.password, string(arr.owner))
+    end
+    write(conn, "Successfully joined\n")
 end
 
 function leave_channel(command::Vector{SubString{String}}, storage, conn::IO)
+    ip_addr = string(first(getpeername(conn)))
 
+    client = storage.active_clients[ip_addr]
+    channel = storage.active_channels[client.current_channel_id]
+
+    if (client.current_channel_id == "1")
+        return (write(conn, "You can't leave the lobby\n"))
+    end
+    client.current_channel_id = "1"
+    write(conn, "You left the channel $(channel.name)\n")
 end
 
 function help(command::Vector{SubString{String}}, storage, conn::IO)

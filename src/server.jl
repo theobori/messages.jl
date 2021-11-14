@@ -36,8 +36,9 @@ function wait_client(conn::IO, s::Storage)
     if (size(parsed_line)[1] > 0)
         Commands.exec_command(parsed_line, s, conn)
 	else
-		Commands.fancy_write(s, conn, "")
+		Commands.broadcast_channel(s, line, conn)
 	end
+	Commands.fancy_write(s, conn, "")
 end
 
 function serve(port::Int)
@@ -49,7 +50,6 @@ function serve(port::Int)
 		conn = accept(storage.listener)
 		write(conn, Data.welcome_msg)
 		@async begin
-			ip_addr = getpeername(conn)
 			try
 				while isopen(conn)
 					wait_client(conn, storage)
