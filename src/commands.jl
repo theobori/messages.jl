@@ -58,7 +58,8 @@ function broadcast_channel(storage, msg::String, conn::IO)
             PS1 = "[$channel_name][$(user.name)] -> "
 
             if (isopen(value.conn))
-                write(value.conn, PS1 * msg * "\n")
+                write(value.conn, "\n" * PS1 * msg * "\n")
+                fancy_write(storage, value.conn, "")
             end
         end
     end
