@@ -74,13 +74,11 @@ function fancy_write(storage, conn::IO, msg::String)
     if (is_logged(storage, ip_addr) == false)
         return (write(conn, msg))
     end
-
     client = storage.active_clients[ip_addr]
     username = client.name
     channel_id = client.current_channel_id
     channel_name = storage.active_channels[channel_id].name
     PS1 = "[$channel_name][$username] "
-
     write(conn, PS1 * msg)
 end
 

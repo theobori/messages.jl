@@ -6,7 +6,8 @@ include("commands.jl")
 using .Data, Sockets
 
 function error_command(command::String)::Bool
-    return any([startswith(command, "/$key") for (key, _) in Commands.commands_ref])
+	command = split(command, " ")
+    return any([command[1] == "/$key" for (key, _) in Commands.commands_ref])
 end
 
 function is_valid_command(command::String, conn::IO)
@@ -56,7 +57,6 @@ function serve(port::Int)
 					wait_client(conn, storage)
 				end
 			catch err
-				# Debug
 				Commands.disconnect(storage, conn)
 			end
 		end
@@ -69,4 +69,4 @@ end # Server
 
 using .Server
 
-serve(1945)
+serve(6666)

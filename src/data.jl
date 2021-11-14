@@ -5,8 +5,8 @@ const help_msg = """
 | /register <name> <password> <password> - Create an account  |
 | /login <name> <password> - Connect with an existing account |
 | /who - Show your name, id                                   |
-| /create <channel_name> [password]- Create a channel                   |
-| /join <channel_name> [password]- Join a channel                       |
+| /create <channel_name> [password]- Create a channel         |
+| /join <channel_name> [password]- Join a channel             |
 | /leave - Leave a channel                                    |
 | /help - Display this message                                |
 +-------------------------------------------------------------+
