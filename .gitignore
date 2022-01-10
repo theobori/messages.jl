@@ -3,3 +3,4 @@ keys/private.pem
 keys/public.pem
 tests/
 todo
+logs/*
