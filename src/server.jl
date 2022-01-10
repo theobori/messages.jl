@@ -1,9 +1,9 @@
 module Server
 
-include("data.jl")
-include("commands.jl")
+include("models/data.jl")
+include("controller/commands.jl")
 
-using .Data, Sockets
+using .Data, Sockets, Dates
 
 function error_command(command::String)::Bool
 	command = split(command, " ")
@@ -33,6 +33,17 @@ end
 function wait_client(conn::IO, s::Storage)
     line = readline(conn)
   	parsed_line = parse_line(line, conn)
+
+	# Store logs into logs/
+	current = string(now())
+	date = current[1:10]
+	time = current[12:19]
+	ip_addr = string(first(getpeername(conn)))
+
+	open("logs/$date.log", "a+") do f
+		write(f, "$ip_addr -> $time -> $line\n")
+	end
+
 
     if (size(parsed_line)[1] > 0)
         Commands.exec_command(parsed_line, s, conn)
