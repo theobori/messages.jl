@@ -19,28 +19,28 @@ Use /help if you need more informations
 """
 
 mutable struct Client
-	id::String
-	name::String
-	ip_addr::String
-	current_channel_id::String
-	conn::IO
+    id::String
+    name::String
+    ip_addr::String
+    current_channel_id::String
+    conn::IO
 end
 
 mutable struct Channel
-	id::String
-	name::String
-	description::String
-	is_protected::Int
-	password::String
-	owner_id::String
+    id::String
+    name::String
+    description::String
+    is_protected::Int
+    password::String
+    owner_id::String
 end
 
 mutable struct Storage
-	listener::Any
-	# ip => Client
-	active_clients::Dict{String, Any}
-	# id => Channel
-	active_channels::Dict{String, Any}
+    listener::Any
+    # ip => Client
+    active_clients::Dict{String,Any}
+    # id => Channel
+    active_channels::Dict{String,Any}
 end
 
 export Client, Channel, Storage

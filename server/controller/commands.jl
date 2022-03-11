@@ -16,16 +16,19 @@ const mysql_conn = DBInterface.connect(
 )
 
 function init_lobby(storage)
-    response = DBInterface.execute(mysql_conn, """SELECT id, name, description,
-    protected, password, owner FROM channel WHERE id=1""")
+    response = DBInterface.execute(
+        mysql_conn,
+        """SELECT id, name, description,
+protected, password, owner FROM channel WHERE id=1"""
+    )
 
     if (length(response) == 0)
         return
     end
 
     arr = map(x -> string(x), first(response))
-    storage.active_channels[arr[1]] = Data.Channel(arr[1], arr[2], arr[3], 
-    parse(Int64, arr[4]), arr[5], arr[6])
+    storage.active_channels[arr[1]] = Data.Channel(arr[1], arr[2], arr[3],
+        parse(Int64, arr[4]), arr[5], arr[6])
 end
 
 function is_logged(storage, ip_addr::String)
@@ -91,7 +94,7 @@ include("../commands/login.jl")
 include("../commands/register.jl")
 include("../commands/who.jl")
 
-const commands_ref = Dict{String, Vector}(
+const commands_ref = Dict{String,Vector}(
     # Function reference , args needed, auth required
     "register" => [register, 3, false],
     "login" => [login, 2, false],
@@ -101,7 +104,7 @@ const commands_ref = Dict{String, Vector}(
     "leave" => [leave_channel, 0, true],
     "help" => [help, 0, false]
 )
-    
+
 function is_command_error(command::Vector{SubString{String}})
     return (size(command)[1] - 1 < commands_ref[command[1]][2])
 end

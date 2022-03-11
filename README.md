@@ -1,12 +1,10 @@
 # `💬 IRC implementation`
 
-Working client: `netcat`
-
 #### How to install dependencies ?
 
 `bash install.sh`
 
-### Setup
+### Server
 
 1. Install the dependencies 
     - Run the bash script `install.sh` (Can request sudo)
@@ -19,10 +17,10 @@ Working client: `netcat`
 
 4. Create a julia file and import `server.jl`
 
-5. Example of usage:
+5. You have to use the module named `server` in `src/server.jl`
 ```julia
-include("src/server.jl")
-
-using .Server
-server(6666)
+include("src/server.jl").serve(6666)
 ```
+
+### Client
+
