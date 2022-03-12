@@ -1,4 +1,4 @@
-function leave_channel(command::Vector{SubString{String}}, storage, conn::IO)
+function leave_channel!(command::Vector{SubString{String}}, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
 
     client = storage.active_clients[ip_addr]

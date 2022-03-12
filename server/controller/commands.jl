@@ -1,6 +1,6 @@
 module Commands
 
-include("../models/data.jl")
+include("../models/types.jl")
 
 using .Data, MySQL, DotEnv, Bcrypt, Sockets
 
@@ -15,7 +15,7 @@ const mysql_conn = DBInterface.connect(
     db = ENV["MYSQL_DATABASE"]
 )
 
-function init_lobby(storage)
+function init_lobby!(storage)
     response = DBInterface.execute(
         mysql_conn,
         """SELECT id, name, description,
@@ -35,7 +35,7 @@ function is_logged(storage, ip_addr::String)
     ip_addr in [key for (key, _) in storage.active_clients]
 end
 
-function disconnect(storage, conn::IO)
+function disconnect!(storage, conn::IO)
     for (key, value) in storage.active_clients
         if (isopen(value.conn) == false)
             delete!(storage.active_clients, key)
@@ -97,16 +97,16 @@ include("../commands/who.jl")
 const commands_ref = Dict{String,Vector}(
     # Function reference , args needed, auth required
     "register" => [register, 3, false],
-    "login" => [login, 2, false],
+    "login" => [login!, 2, false],
     "who" => [who, 0, true],
     "create" => [create_channel, 1, true],
-    "join" => [join_channel, 1, true],
-    "leave" => [leave_channel, 0, true],
+    "join" => [join_channel!, 1, true],
+    "leave" => [leave_channel!, 0, true],
     "help" => [help, 0, false]
 )
 
 function is_command_error(command::Vector{SubString{String}})
-    return (size(command)[1] - 1 < commands_ref[command[1]][2])
+    size(command)[1] - 1 < commands_ref[command[1]][2]
 end
 
 function exec_command(command::Vector{SubString{String}}, storage, conn::IO)

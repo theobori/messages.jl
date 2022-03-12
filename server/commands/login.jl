@@ -1,4 +1,4 @@
-function login(command::Vector{SubString{String}}, storage, conn::IO)
+function login!(command::Vector{SubString{String}}, storage, conn::IO)
     name = command[2]
     ip_addr = string(first(getpeername(conn)))
 
@@ -10,7 +10,7 @@ function login(command::Vector{SubString{String}}, storage, conn::IO)
     end
 
     response = DBInterface.execute(mysql_conn, """SELECT id, password, name
-    FROM user WHERE name='$name'""")
+FROM user WHERE name='$name'""")
 
     if (length(response) == 0)
         return (write(conn, "Invalid username or password\n"))

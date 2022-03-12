@@ -1,4 +1,4 @@
-function join_channel(command::Vector{SubString{String}}, storage, conn::IO)
+function join_channel!(command::Vector{SubString{String}}, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
     name = command[2]
 
