@@ -5,15 +5,15 @@ from typing import *
 
 def error():
     if (len(sys.argv) < 3):
-        print("Usage: ./client.py <ip_addr> <port>")
+        sys.stderr.write("Usage: ./client.py <ip_addr> <port>")
         exit(84)
     if (not sys.argv[2].isdigit()):
+        sys.stderr.write("Invalid port")
         exit(84)
 
 class Client:
 
     def __init__(self):
-        error() 
         # Server to connect
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.connect((sys.argv[1], int(sys.argv[2])))
@@ -26,6 +26,7 @@ class Client:
             if sock == self.server:
                 message = sock.recv(2048)
                 print(message.decode("utf-8"), end = "")
+                sys.stdout.flush()
             else:
                 message = sys.stdin.readline()
                 self.server.send(message.encode())
@@ -39,6 +40,7 @@ class Client:
             self._listen(read_sockets)
 
 def main():
+    error() 
     client = Client()
     client.run()
 

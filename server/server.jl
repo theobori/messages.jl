@@ -30,27 +30,37 @@ function parse_line(command::String, conn::IO)
     return (command)
 end
 
+function log(conn::IO, line::String, file::String)
+    current = string(now())
+    time = current[12:19]
+    ip_addr = string(first(getpeername(conn)))
+
+    open(file, "a+") do f
+        write(f, "$ip_addr -> $time -> $line\n")
+    end
+end
+
+log(conn::IO, line::String) = log(conn, line, "./logs/$(string(now())[1:10]).log")
+
+
 function wait_client(conn::IO, s::Storage)
     line = readline(conn)
     parsed_line = parse_line(line, conn)
 
-    # Store logs into logs/
-    current = string(now())
-    date = current[1:10]
-    time = current[12:19]
-    ip_addr = string(first(getpeername(conn)))
-
-    open("logs/$date.log", "a+") do f
-        write(f, "$ip_addr -> $time -> $line\n")
-    end
-
-
     if (size(parsed_line)[1] > 0)
         Commands.exec_command(parsed_line, s, conn)
-    else
-        Commands.broadcast_channel(s, line, conn)
     end
+
     Commands.fancy_write(s, conn, "")
+
+    if (length(line) <= 0)
+        return
+    end
+    Commands.broadcast_channel(s, line, conn)
+
+    # Store logs into logs/
+    log(conn, line)
+
 end
 
 function serve(port::Int)
