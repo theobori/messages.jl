@@ -7,26 +7,17 @@ include("requests.jl")
 include("types.jl")
 include("controller/commands.jl")
 
-using .Data, .Requests, Sockets, Dates
+using .Types, .Requests, Sockets, Dates
 
-function error_command!(command::String)::Bool
-    command = split(command, " ")
-    any([command[1] == "/$key" for (key, _) in Commands.commands_ref])
-end
-
-function is_valid_command(command::String, conn::IO)
+function is_valid_command(command::String)
     if (!startswith(command, "/"))
         return (false)
     end
-    if (!error_command!(command))
-        write(conn, "The command $command doesnt exist\n")
-        return (false)
-    end
-    return (true)
+    true
 end
 
 function parse_line!(command::String, conn::IO)
-    if (!is_valid_command(command, conn))
+    if (is_valid_command(command) == false)
         return ([])
     end
     command = replace(command, "/" => "")
@@ -45,7 +36,6 @@ function log(conn::IO, line::String, file::String)
 end
 
 log(conn::IO, line::String) = log(conn, line, "./logs/$(string(now())[1:10]).log")
-
 
 function wait_client(conn::IO, s::Storage)
     line = readline(conn)
@@ -71,7 +61,7 @@ function serve(port::Int)
     print("Server listening on port $port\n")
     while true
         conn = accept(storage.listener)
-        write(conn, Data.welcome_msg)
+        write(conn, Types.welcome_msg)
 
         @async begin
             try

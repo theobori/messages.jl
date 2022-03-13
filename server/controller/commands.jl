@@ -3,7 +3,7 @@ module Commands
 include("../types.jl")
 include("../requests.jl")
 
-using .Data, Bcrypt, Sockets
+using .Types, Bcrypt, Sockets
 
 function init_lobby!(storage)
     arr = Requests.get_lobby(storage.sql_conn)
@@ -13,7 +13,7 @@ function init_lobby!(storage)
     end
 
     arr = map(x -> string(x), arr)
-    storage.active_channels[arr[1]] = Data.Channel(arr[1], arr[2], arr[3],
+    storage.active_channels[arr[1]] = Types.Channel(arr[1], arr[2], arr[3],
         parse(Int64, arr[4]), arr[5], arr[6])
 end
 
@@ -79,17 +79,7 @@ include("../commands/leave.jl")
 include("../commands/login.jl")
 include("../commands/register.jl")
 include("../commands/who.jl")
-
-const commands_ref = Dict{String,Vector}(
-    # Function reference , args needed, auth required
-    "register" => [register, 3, false],
-    "login" => [login!, 2, false],
-    "who" => [who, 0, true],
-    "create" => [create_channel, 1, true],
-    "join" => [join_channel!, 1, true],
-    "leave" => [leave_channel!, 0, true],
-    "help" => [help, 0, false]
-)
+include("../commands/unknown.jl")
 
 function is_command_error(command::Vector{SubString{String}})
     size(command)[1] - 1 < commands_ref[command[1]][2]
@@ -97,16 +87,18 @@ end
 
 function exec_command(command::Vector{SubString{String}}, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
+    command_name = String(command[1])
+    args = command[2:length(command)]
+    commandInfos = getCommandInfos(command_name)
 
-    if (is_command_error(command))
-        return write(conn, "You should use /help\n")
-    end
-
-    command_ref = commands_ref[command[1]]
-    if (is_logged(storage, ip_addr) == false && command_ref[3] == true)
+    if (is_logged(storage, ip_addr) == false && commandInfos.auth == true)
         return (write(conn, "You must be logged in to use this command\n"))
     end
-    command_ref[1](command, storage, conn)
+    if (size(args)[1] < commandInfos.args_amount)
+        return (write(conn, "Invalid number of arguments\n"))
+    end
+
+    call(commandInfos, args, storage, conn)
 end
 
 end # Commands

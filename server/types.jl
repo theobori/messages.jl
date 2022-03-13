@@ -1,4 +1,4 @@
-module Data
+module Types
 
 using MySQL
 
@@ -50,6 +50,50 @@ function Storage(listener::Any, sql_conn::MySQL.Connection)
     Storage(listener, sql_conn, Dict(), Dict())
 end
 
-export Client, Channel, Storage
+abstract type AbstractCommand{A <: Number, B <: Bool} end
+
+function addCommandType(name::String, args_amount::String, auth::String)
+    expr = """
+    struct $name{A, B} <: AbstractCommand{A, B}
+        args_amount::A
+        auth::B
+        function $name()
+            if ($args_amount < 0)
+                error(\"The arguments amount must be >= 0\")
+            end
+            new{Int, Bool}($args_amount, $auth)
+        end
+    end"""
+    expr = Meta.parse(expr)
+    eval(expr)
+end
+
+addCommandType("Register", "0", "false")
+addCommandType("Login", "2", "false")
+addCommandType("Help", "0", "false")
+addCommandType("Who", "0", "true")
+addCommandType("Create", "1", "true")
+addCommandType("Join", "1", "true")
+addCommandType("Leave", "0", "true")
+addCommandType("Unknown", "0", "false")
+
+const table = Dict(
+    "register" => Register,
+    "login" => Login,
+    "help" => Help,
+    "who" => Who,
+    "create" => Create,
+    "join" => Join,
+    "leave" => Leave
+)
+
+function getCommandInfos(name::String)
+    if (any([name == key for (key, _) in table]) == false)
+        return (Unknown())
+    end
+    table[name]()
+end
+
+export Client, Channel, Storage, getCommandInfos
 
 end # Data

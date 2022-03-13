@@ -1,15 +1,14 @@
-function create_channel(command::Vector{SubString{String}}, storage, conn::IO)
+function call(::Types.Create, args::Vector, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
-    name = command[2]
+    name = args[1]
     password = "no password"
 
-    if (length(command) - 1 == 2)
-        password = String(Bcrypt.GenerateFromPassword(Array{UInt8,1}(command[3]), 0))
+    if (length(args) == 2)
+        password = String(Bcrypt.GenerateFromPassword(Array{UInt8,1}(args[2]), 0))
     end
 
     protected = password == "no password" ? 0 : 1
     user_id = storage.active_clients[ip_addr].id
-    user_id = parse(Int, user_id)
 
     response = Requests.insert_channel(
         storage.sql_conn, name, 

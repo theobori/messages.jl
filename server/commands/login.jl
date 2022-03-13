@@ -1,6 +1,6 @@
-function login!(command::Vector{SubString{String}}, storage, conn::IO)
-    name = command[2]
+function call(::Types.Login, args::Vector, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
+    name = args[1]
 
     if (is_logged(storage, ip_addr))
         return (write(conn, "There already is a connection with this IP address\n"))
@@ -14,7 +14,7 @@ function login!(command::Vector{SubString{String}}, storage, conn::IO)
     if (length(arr) == 0)
         return (write(conn, "Invalid username or password\n"))
     end
-    password = String(command[3])
+    password = String(args[2])
     arr = map(x -> string(x), arr)
     if (Bcrypt.CompareHashAndPassword(arr[2], password) == false)
         return (write(conn, "Invalid username or password\n"))

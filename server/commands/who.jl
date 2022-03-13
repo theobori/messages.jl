@@ -1,4 +1,4 @@
-function who(command::Vector{SubString{String}}, storage, conn::IO)
+function call(::Types.Who, args::Vector, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
 
     user = storage.active_clients[ip_addr]

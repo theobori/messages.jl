@@ -1,6 +1,5 @@
-function leave_channel!(command::Vector{SubString{String}}, storage, conn::IO)
+function call(::Types.Leave, args::Vector, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
-
     client = storage.active_clients[ip_addr]
     channel = storage.active_channels[client.current_channel_id]
 
