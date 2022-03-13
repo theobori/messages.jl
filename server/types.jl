@@ -26,6 +26,11 @@ mutable struct Client
     ip_addr::String
     current_channel_id::String
     conn::IO
+    is_auth::Bool
+end
+
+function Client(ip_addr::String, conn::IO)
+    Client("", "", ip_addr, "", conn, false)
 end
 
 mutable struct Channel
@@ -41,9 +46,9 @@ mutable struct Storage
     listener::Any
     sql_conn::MySQL.Connection
     # ip => Client
-    active_clients::Dict{String,Any}
+    active_clients::Dict{String, Any}
     # id => Channel
-    active_channels::Dict{String,Any}
+    active_channels::Dict{String, Any}
 end
 
 function Storage(listener::Any, sql_conn::MySQL.Connection)

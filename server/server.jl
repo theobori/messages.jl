@@ -54,6 +54,10 @@ function wait_client(conn::IO, s::Storage)
     log(conn, line)
 end
 
+function add_default_client(storage, ip_addr::String, conn::IO)
+    storage.active_clients[ip_addr] = Client(ip_addr, conn)
+end
+
 function serve(port::Int)
     storage = Storage(listen(IPv4(0), port), SQL())
     Commands.init_lobby!(storage)
@@ -61,8 +65,15 @@ function serve(port::Int)
     print("Server listening on port $port\n")
     while true
         conn = accept(storage.listener)
+        ip_addr = string(first(getpeername(conn)))
         write(conn, Types.welcome_msg)
-
+        
+        if (Commands.is_connected(storage, ip_addr))
+            println("already connected")
+            # Commands.disconnect!(storage, conn)
+            continue
+        end
+        add_default_client(storage, ip_addr, conn)
         @async begin
             try
                 while isopen(conn)

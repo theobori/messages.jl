@@ -18,6 +18,11 @@ function init_lobby!(storage)
 end
 
 function is_logged(storage, ip_addr::String)
+    client = storage.active_clients[ip_addr]
+    client.is_auth
+end
+
+function is_connected(storage, ip_addr::String)
     ip_addr in [key for (key, _) in storage.active_clients]
 end
 
@@ -80,10 +85,6 @@ include("../commands/login.jl")
 include("../commands/register.jl")
 include("../commands/who.jl")
 include("../commands/unknown.jl")
-
-function is_command_error(command::Vector{SubString{String}})
-    size(command)[1] - 1 < commands_ref[command[1]][2]
-end
 
 function exec_command(command::Vector{SubString{String}}, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))

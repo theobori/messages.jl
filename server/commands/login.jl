@@ -2,9 +2,6 @@ function call(::Types.Login, args::Vector, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
     name = args[1]
 
-    if (is_logged(storage, ip_addr))
-        return (write(conn, "There already is a connection with this IP address\n"))
-    end
     if (name in [value.name for (_, value) in storage.active_clients])
         return (write(conn, "This account is already used\n"))
     end
@@ -21,5 +18,8 @@ function call(::Types.Login, args::Vector, storage, conn::IO)
     end
     write(conn, "Successfully logged in\n")
 
-    storage.active_clients[ip_addr] = Client(arr[1], arr[3], ip_addr, "1", conn)
+    storage.active_clients[ip_addr].id = arr[1]
+    storage.active_clients[ip_addr].name = name
+    storage.active_clients[ip_addr].is_auth = true
+    storage.active_clients[ip_addr].current_channel_id = "1"
 end
