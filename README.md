@@ -1,12 +1,8 @@
 # `💬 IRC implementation`
 
-#### How to install dependencies ?
+### `Server`
 
-`bash install.sh`
-
-### Server
-
-1. Install the dependencies 
+1. Install the dependencies
     - Run the bash script `install.sh` (Can request sudo)
   
 2. Create the file `.env` in the repository source using the `.env_example`
@@ -22,5 +18,8 @@
 include("src/server.jl").serve(6666)
 ```
 
-### Client
+### `Client`
 
+1. Install the dependencies
+    - Run the bash script `install.sh` (Can request sudo)
+2. Run `python3 client/client.py`

@@ -8,11 +8,11 @@ function register(command::Vector{SubString{String}}, storage, conn::IO)
     
     name = command[2]
     password = String(Bcrypt.GenerateFromPassword(Array{UInt8,1}(command[3]), 0))
-    try
-        DBInterface.execute(mysql_conn, """INSERT INTO user (name, password)
-        VALUES ('$name', '$password')""")
-    catch err
-        return (write(conn, "An account with the username $name already exists\n"))
+    response = Requests.insert_account(storage.sql_conn, name, password)
+
+    if (response)
+        write(conn, "Account successfully created ! Now you can use /login\n")
+    else
+        write(conn, "An account with the username $name already exists\n")
     end
-    write(conn, "Account successfully created ! Now you can use /login\n")
 end

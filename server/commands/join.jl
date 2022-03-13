@@ -1,15 +1,12 @@
 function join_channel!(command::Vector{SubString{String}}, storage, conn::IO)
     ip_addr = string(first(getpeername(conn)))
     name = command[2]
+    arr = Requests.get_channel(storage.sql_conn, name)
 
-    response = DBInterface.execute(mysql_conn, """SELECT id, description, 
-    name, protected, password, owner FROM channel WHERE name='$name'""")
-
-    if (length(response) == 0)
+    if (length(arr) == 0)
         return (write(conn, "This channel doesnt exist\n"))
     end
 
-    arr = first(response)
     if (arr.protected == 1)
         if (length(command) - 1 != 2)
             return (write(conn, "This channel required a password\n"))

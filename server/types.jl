@@ -1,5 +1,7 @@
 module Data
 
+using MySQL
+
 const help_msg = """
 +-------------------------------------------------------------+
 | /register <name> <password> <password> - Create an account  |
@@ -37,10 +39,15 @@ end
 
 mutable struct Storage
     listener::Any
+    sql_conn::MySQL.Connection
     # ip => Client
     active_clients::Dict{String,Any}
     # id => Channel
     active_channels::Dict{String,Any}
+end
+
+function Storage(listener::Any, sql_conn::MySQL.Connection)
+    Storage(listener, sql_conn, Dict(), Dict())
 end
 
 export Client, Channel, Storage

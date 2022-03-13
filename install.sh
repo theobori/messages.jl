@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check this packages
-pkg=(julia mysql-server)
+pkg=(julia mysql-server python3)
 pkg_manager=(apt brew)
 
 # Check your default package manager and install packages

@@ -9,14 +9,13 @@ function login!(command::Vector{SubString{String}}, storage, conn::IO)
         return (write(conn, "This account is already used\n"))
     end
 
-    response = DBInterface.execute(mysql_conn, """SELECT id, password, name
-FROM user WHERE name='$name'""")
+    arr = Requests.get_account(storage.sql_conn, name)
 
-    if (length(response) == 0)
+    if (length(arr) == 0)
         return (write(conn, "Invalid username or password\n"))
     end
     password = String(command[3])
-    arr = map(x -> string(x), first(response))
+    arr = map(x -> string(x), arr)
     if (Bcrypt.CompareHashAndPassword(arr[2], password) == false)
         return (write(conn, "Invalid username or password\n"))
     end

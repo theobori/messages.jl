@@ -21,7 +21,7 @@ class Client:
         # Possible streams
         self.sockets_list = [sys.stdin, self.server]
 
-    def _listen(self, read_sockets: Any):
+    def _listen(self, read_sockets: list):
         for sock in read_sockets:
             if sock == self.server:
                 message = sock.recv(2048)

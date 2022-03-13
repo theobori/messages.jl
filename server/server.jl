@@ -1,9 +1,13 @@
 module Server
 
-include("models/types.jl")
+using DotEnv
+DotEnv.config()
+
+include("requests.jl")
+include("types.jl")
 include("controller/commands.jl")
 
-using .Data, Sockets, Dates
+using .Data, .Requests, Sockets, Dates
 
 function error_command!(command::String)::Bool
     command = split(command, " ")
@@ -58,11 +62,10 @@ function wait_client(conn::IO, s::Storage)
 
     # Store logs in files
     log(conn, line)
-
 end
 
 function serve(port::Int)
-    storage = Storage(listen(IPv4(0), port), Dict(), Dict())
+    storage = Storage(listen(IPv4(0), port), SQL())
     Commands.init_lobby!(storage)
 
     print("Server listening on port $port\n")

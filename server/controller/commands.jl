@@ -1,32 +1,18 @@
 module Commands
 
-include("../models/types.jl")
+include("../types.jl")
+include("../requests.jl")
 
-using .Data, MySQL, DotEnv, Bcrypt, Sockets
-
-DotEnv.config()
-
-# SQL connection
-const mysql_conn = DBInterface.connect(
-    MySQL.Connection,
-    ENV["MYSQL_HOST"],
-    ENV["MYSQL_USER"],
-    ENV["MYSQL_ROOT_PASSWORD"],
-    db = ENV["MYSQL_DATABASE"]
-)
+using .Data, Bcrypt, Sockets
 
 function init_lobby!(storage)
-    response = DBInterface.execute(
-        mysql_conn,
-        """SELECT id, name, description,
-protected, password, owner FROM channel WHERE id=1"""
-    )
+    arr = Requests.get_lobby(storage.sql_conn)
 
-    if (length(response) == 0)
+    if (length(arr) == 0)
         return
     end
 
-    arr = map(x -> string(x), first(response))
+    arr = map(x -> string(x), arr)
     storage.active_channels[arr[1]] = Data.Channel(arr[1], arr[2], arr[3],
         parse(Int64, arr[4]), arr[5], arr[6])
 end
