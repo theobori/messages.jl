@@ -1,7 +1,7 @@
 module Commands
 
 include("../types.jl")
-include("../requests.jl")
+include("../controller/requests.jl")
 include("network.jl")
 
 using .Types, Bcrypt, Sockets

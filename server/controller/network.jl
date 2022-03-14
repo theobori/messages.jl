@@ -1,6 +1,6 @@
 module Network 
 
-include("../requests.jl")
+include("../controller/requests.jl")
 include("../types.jl")
 include("../utils.jl")
 

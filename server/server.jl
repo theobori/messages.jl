@@ -4,7 +4,7 @@ using DotEnv
 DotEnv.config()
 
 include("utils.jl")
-include("requests.jl")
+include("controller/requests.jl")
 include("types.jl")
 include("controller/network.jl")
 include("controller/commands.jl")
