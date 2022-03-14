@@ -7,5 +7,5 @@ function call(::Types.Leave, args::Vector, storage, conn::IO)
         return (write(conn, "You can't leave the lobby\n"))
     end
     client.current_channel_id = "1"
-    write(conn, "You left the channel $(channel.name)\n")
+    write(conn, "You left the channel [$(channel.name)]\n")
 end

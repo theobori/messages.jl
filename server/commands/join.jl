@@ -17,7 +17,7 @@ function call(::Types.Join, args::Vector, storage, conn::IO)
     end
 
     storage.active_clients[ip_addr].current_channel_id = string(arr.id)
-    if (channel_exist(storage, string(arr.id)) == false)
+    if (Network.channel_exist(storage, string(arr.id)) == false)
         storage.active_channels[string(arr.id)] = Types.Channel(string(arr.id), 
         arr.name, arr.description, arr.protected, arr.password, string(arr.owner))
     end

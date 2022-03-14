@@ -6,6 +6,7 @@ DotEnv.config()
 include("utils.jl")
 include("requests.jl")
 include("types.jl")
+include("controller/network.jl")
 include("controller/commands.jl")
 
 using .Types, .Requests, Sockets, Dates
@@ -33,11 +34,11 @@ function wait_client(conn::IO, storage)
     if (size(parsed_line)[1] > 0)
         Commands.exec_command(parsed_line, storage, conn)
     end
-    Commands.fancy_write(storage, conn)
+    Network.fancy_write(storage, conn)
     if (length(line) <= 0)
         return
     end
-    Commands.broadcast_channel(storage, line, conn)
+    Network.broadcast_channel(storage, line, conn)
 
     # Store logs in files
     Utils.log(conn, line)
@@ -49,21 +50,21 @@ end
 
 function serve(port::Int)
     storage = Storage(listen(IPv4(0), port), SQL())
-    Commands.init_lobby!(storage)
+    Network.init_lobby!(storage)
 
     print("Server listening on port $port\n")
     while true
         conn = accept(storage.listener)
         ip_addr = string(first(getpeername(conn)))
         
-        if (Commands.is_connected(storage, ip_addr))
+        if (Network.is_connected(storage, ip_addr))
             write(conn, "Someone is already using this ip address ($ip_addr)\n")
             continue
         end
 
         write(conn, Types.welcome_msg)
         add_default_client(storage, ip_addr, conn)
-        Commands.fancy_write(storage, conn)
+        Network.fancy_write(storage, conn)
 
         @async begin
             try
@@ -71,7 +72,7 @@ function serve(port::Int)
                     wait_client(conn, storage)
                 end
             catch err
-                Commands.disconnect!(storage, conn)
+                Network.disconnect!(storage, conn)
             end
         end
     end
