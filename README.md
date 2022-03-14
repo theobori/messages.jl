@@ -1,5 +1,7 @@
 # `💬 IRC implementation`
 
+## Setup
+
 ### `Server`
 
 1. Install the dependencies
@@ -23,3 +25,19 @@ include("src/server.jl").serve(6666)
 1. Install the dependencies
     - Run the bash script `install.sh` (Can request sudo)
 2. Run `python3 client/client.py`
+
+## Features / TODO
+
+Name           | Status
+-------------  |:-------------:
+netcat working as a client | ✔️
+Basic command system | ✔️
+Account system | ✔️
+SQL model      | ✔️
+Disallow multiple connections with same IP | ✔️
+Meta parsing to create command types  | ✔️
+Multiple dispatch with command functions | ✔️
+Anti DOS       | ⌛
+Client         | ✔️
+Private messages | ⌛
+Encrypted communication (probably diff port) | ⌛
