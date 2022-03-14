@@ -21,5 +21,4 @@ function call(::Types.Join, args::Vector, storage, conn::IO)
         storage.active_channels[string(arr.id)] = Types.Channel(string(arr.id), 
         arr.name, arr.description, arr.protected, arr.password, string(arr.owner))
     end
-    write(conn, "Successfully joined\n")
 end

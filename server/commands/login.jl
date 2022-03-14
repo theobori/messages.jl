@@ -16,7 +16,6 @@ function call(::Types.Login, args::Vector, storage, conn::IO)
     if (Bcrypt.CompareHashAndPassword(arr[2], password) == false)
         return (write(conn, "Invalid username or password\n"))
     end
-    write(conn, "Successfully logged in\n")
 
     storage.active_clients[ip_addr].id = arr[1]
     storage.active_clients[ip_addr].name = name

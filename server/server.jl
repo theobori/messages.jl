@@ -3,6 +3,7 @@ module Server
 using DotEnv
 DotEnv.config()
 
+include("utils.jl")
 include("requests.jl")
 include("types.jl")
 include("controller/commands.jl")
@@ -25,33 +26,21 @@ function parse_line!(command::String, conn::IO)
     command
 end
 
-function log(conn::IO, line::String, file::String)
-    current = string(now())
-    time = current[12:19]
-    ip_addr = string(first(getpeername(conn)))
-
-    open(file, "a+") do f
-        write(f, "$ip_addr -> $time -> $line\n")
-    end
-end
-
-log(conn::IO, line::String) = log(conn, line, "./logs/$(string(now())[1:10]).log")
-
-function wait_client(conn::IO, s::Storage)
+function wait_client(conn::IO, storage)
     line = readline(conn)
     parsed_line = parse_line!(line, conn)
 
     if (size(parsed_line)[1] > 0)
-        Commands.exec_command(parsed_line, s, conn)
+        Commands.exec_command(parsed_line, storage, conn)
     end
-    Commands.fancy_write(s, conn, "")
+    Commands.fancy_write(storage, conn)
     if (length(line) <= 0)
         return
     end
-    Commands.broadcast_channel(s, line, conn)
+    Commands.broadcast_channel(storage, line, conn)
 
     # Store logs in files
-    log(conn, line)
+    Utils.log(conn, line)
 end
 
 function add_default_client(storage, ip_addr::String, conn::IO)
@@ -66,14 +55,16 @@ function serve(port::Int)
     while true
         conn = accept(storage.listener)
         ip_addr = string(first(getpeername(conn)))
-        write(conn, Types.welcome_msg)
         
         if (Commands.is_connected(storage, ip_addr))
-            println("already connected")
-            # Commands.disconnect!(storage, conn)
+            write(conn, "Someone is already using this ip address ($ip_addr)\n")
             continue
         end
+
+        write(conn, Types.welcome_msg)
         add_default_client(storage, ip_addr, conn)
+        Commands.fancy_write(storage, conn)
+
         @async begin
             try
                 while isopen(conn)

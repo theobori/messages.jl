@@ -2,8 +2,9 @@ module Commands
 
 include("../types.jl")
 include("../requests.jl")
+include("../utils.jl")
 
-using .Types, Bcrypt, Sockets
+using .Types, .Utils, Bcrypt, Sockets
 
 function init_lobby!(storage)
     arr = Requests.get_lobby(storage.sql_conn)
@@ -44,12 +45,12 @@ function broadcast_channel(storage, msg::String, conn::IO)
     client = storage.active_clients[ip_addr]
     channel_id = client.current_channel_id
 
-    for (target_ip, value) in storage.active_clients
+    for (_, value) in storage.active_clients
         if (value.current_channel_id == channel_id && value.id != client.id)
 
             user = storage.active_clients[ip_addr]
             channel_name = storage.active_channels[channel_id].name
-            PS1 = "[$channel_name][$(user.name)] -> "
+            PS1 = "[$(date(12:19))][$channel_name][$(user.name)] -> "
 
             if (isopen(value.conn))
                 write(value.conn, "\n" * PS1 * msg * "\n")
@@ -63,17 +64,17 @@ function channel_exist(storage, id::String)
     id in [key for (key, _) in storage.active_channels]
 end
 
-function fancy_write(storage, conn::IO, msg::String)
+function fancy_write(storage, conn::IO, msg::String = "")
     ip_addr = string(first(getpeername(conn)))
 
     if (is_logged(storage, ip_addr) == false)
-        return (write(conn, msg))
+        return (write(conn, "> "))
     end
     client = storage.active_clients[ip_addr]
     username = client.name
     channel_id = client.current_channel_id
     channel_name = storage.active_channels[channel_id].name
-    PS1 = "[$channel_name][$username] "
+    PS1 = "[$(date(12:19))][$channel_name][$username] "
     write(conn, PS1 * msg)
 end
 
