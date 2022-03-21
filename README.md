@@ -42,3 +42,7 @@ Anti DOS       | ⌛
 Client         | ✔️
 Private messages | ⌛
 Encrypted communication (probably diff port) | ⌛
+
+## Encryption
+
+For the encryption i will probably use this [repository (RSA.jl)](https://github.com/theobori/RSA.jl) to encrypt an AES key
