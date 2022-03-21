@@ -1,8 +1,8 @@
-# `💬 IRC implementation`
+# Instant messages implementation
 
 ## Setup
 
-### `Server`
+### Server
 
 1. Install the dependencies
     - Run the bash script `install.sh` (Can request sudo)
@@ -20,7 +20,7 @@
 include("src/server.jl").serve(6666)
 ```
 
-### `Client`
+### Client
 
 1. Install the dependencies
     - Run the bash script `install.sh` (Can request sudo)
@@ -34,6 +34,7 @@ netcat working as a client | ✔️
 Basic command system | ✔️
 Account system | ✔️
 SQL model      | ✔️
+Public / private (with password) channels | ✔️
 Disallow multiple connections with same IP | ✔️
 Meta parsing to create command types  | ✔️
 Multiple dispatch with command functions | ✔️
